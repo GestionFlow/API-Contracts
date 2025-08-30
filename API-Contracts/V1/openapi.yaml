@@ -1,0 +1,22 @@
+openapi: 3.0.4
+info:
+  title: Task Management API
+  version: 1.0.0
+  description: API for managing tasks and users
+servers:
+  - url: http://api.example.com/v1
+    description: Production server
+  - url: http://staging-api.example.com
+    description: Staging server
+
+tags:
+  - name: User Management
+    description: Endpoints related to users
+  - name: Task Management
+    description: Endpoints related to tasks
+
+paths:
+  /users:
+    $ref: "./users/users-api.yaml"
+  /tasks:
+    $ref: "./tasks/tasks-api.yaml"

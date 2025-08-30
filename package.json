@@ -1,0 +1,26 @@
+{
+  "name": "mayhem-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+"build": "swagger-cli bundle ./API-Contracts/V1/openapi.yaml -o ./API-Contracts/V1/bundled.yaml -t yaml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-personal:Pranav-Kumar-Singh-038/Mayhem-Contracts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.1.0",
+    "http-server": "^14.1.1",
+    "swagger-ui-dist": "^5.28.0",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  }
+}

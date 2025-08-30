@@ -1,0 +1,10 @@
+services:
+  swagger-ui:
+    image: swaggerapi/swagger-ui:latest
+    container_name: mayhem-swagger-ui
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./API-Contracts/v1:/usr/share/nginx/html/contracts:ro
+    environment:
+      SWAGGER_JSON: /usr/share/nginx/html/contracts/openapi.yaml
