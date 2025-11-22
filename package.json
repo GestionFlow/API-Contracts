@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-"build": "swagger-cli bundle ./API-Contracts/V1/openapi.yaml -o ./API-Contracts/V1/bundled.yaml -t yaml"
+    "build": "swagger-cli bundle ./API-Contracts/V1/openapi.yaml -o ./API-Contracts/V1/bundled.yaml -t yaml"
   },
   "repository": {
     "type": "git",

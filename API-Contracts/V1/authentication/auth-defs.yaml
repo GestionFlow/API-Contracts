@@ -1,0 +1,72 @@
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+        name:
+          type: string
+          example: Pranav
+        email:
+          type: string
+          format: email
+          example: pranav@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: secure123
+        role:
+          type: string
+          enum: [admin, lead, member]
+          default: member
+        status:
+          type: string
+          enum: [active, busy, unavailable]
+          default: active
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was created
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: pranav@example.com
+        password:
+          type: string
+          format: password
+          example: secure123
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token
+        refreshToken:
+          type: string
+          description: JWT refresh token
+        user:
+          $ref: '#/components/schemas/User'
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Invalid credentials
