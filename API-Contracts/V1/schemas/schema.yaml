@@ -70,3 +70,4 @@ components:
           type: string
           description: Error message
           example: Invalid credentials
+
