@@ -6,19 +6,21 @@ info:
 servers:
   - url: 'http://api.example.com/v1'
     description: Production server
+tags:
+  - name: Authentication
+  - name: User Management
+  - name: Task Management
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
   schemas:
     User:
       type: object
       required:
+        - id
         - name
         - email
-        - password
+        - role
+        - status
+        - createdAt
       properties:
         id:
           type: string
@@ -31,11 +33,6 @@ components:
           type: string
           format: email
           example: pranav@example.com
-        password:
-          type: string
-          format: password
-          minLength: 8
-          example: secure123
         role:
           type: string
           enum:
@@ -54,6 +51,25 @@ components:
           type: string
           format: date-time
           description: Timestamp when the user was created
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Pranav
+        email:
+          type: string
+          format: email
+          example: pranav@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: secure123
     LoginRequest:
       type: object
       required:
@@ -79,50 +95,81 @@ components:
           description: JWT refresh token
         user:
           $ref: '#/components/schemas/User'
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Valid refresh token
+    RefreshTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: New JWT access token
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the task
+        title:
+          type: string
+          description: Task title
+        description:
+          type: string
+          description: Task description
+        status:
+          type: string
+          enum:
+            - pending
+            - in-progress
+            - completed
+          default: pending
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the task was created
+    CreateTask:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Task title
+        description:
+          type: string
+          description: Task description
     Error:
       type: object
+      required:
+        - error
       properties:
         error:
           type: string
           description: Error message
           example: Invalid credentials
-tags:
-  - name: Authentication
-    description: Endpoints related to auth
-  - name: User Management
-    description: Endpoints related to users
-  - name: Task Management
-    description: Endpoints related to tasks
 paths:
   /auth/register:
     post:
       tags:
         - Authentication
       summary: Create a new user account
-      description: 'Register a new user with name, email, and password'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-                - email
-                - password
-              properties:
-                name:
-                  type: string
-                  example: Pranav
-                email:
-                  type: string
-                  format: email
-                  example: pranav@example.com
-                password:
-                  type: string
-                  format: password
-                  minLength: 8
-                  example: secure123
+              $ref: '#/components/schemas/RegisterRequest'
       responses:
         '201':
           description: User created successfully
@@ -146,8 +193,7 @@ paths:
     post:
       tags:
         - Authentication
-      summary: Authenticate user and get JWT tokens
-      description: Authenticate a user with email and password to receive access and refresh tokens
+      summary: Authenticate user
       requestBody:
         required: true
         content:
@@ -156,7 +202,7 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Authentication successful
+          description: Login successful
           content:
             application/json:
               schema:
@@ -171,15 +217,14 @@ paths:
     post:
       tags:
         - Authentication
-      summary: Invalidate refresh token
-      description: Log out the current user by invalidating their refresh token
       security:
         - bearerAuth: []
+      summary: Logout user
       responses:
         '200':
-          description: Successfully logged out
+          description: Logged out successfully
         '401':
-          description: Unauthorized - invalid or missing token
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -189,32 +234,21 @@ paths:
       tags:
         - Authentication
       summary: Refresh access token
-      description: Get a new access token using a valid refresh token
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - refreshToken
-              properties:
-                refreshToken:
-                  type: string
-                  description: Valid refresh token
+              $ref: '#/components/schemas/RefreshTokenRequest'
       responses:
         '200':
-          description: New access token generated successfully
+          description: New access token issued
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: New JWT access token
+                $ref: '#/components/schemas/RefreshTokenResponse'
         '401':
-          description: Invalid or expired refresh token
+          description: Invalid refresh token
           content:
             application/json:
               schema:
@@ -223,8 +257,7 @@ paths:
     get:
       tags:
         - User Management
-      summary: Create a new user account
-      description: Get logged-in user
+      summary: Get logged-in user
       security:
         - bearerAuth: []
       responses:
@@ -235,14 +268,55 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
         '401':
-          description: Unauthorized - invalid or missing token
+          description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        '409':
-          description: User doesn't exist
+  /tasks:
+    get:
+      tags:
+        - Task Management
+      security:
+        - bearerAuth: []
+      summary: Get all tasks
+      responses:
+        '200':
+          description: List of tasks
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+    post:
+      tags:
+        - Task Management
+      security:
+        - bearerAuth: []
+      summary: Create task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTask'
+      responses:
+        '201':
+          description: Task created
+  '/tasks/{taskId}':
+    delete:
+      tags:
+        - Task Management
+      security:
+        - bearerAuth: []
+      summary: Delete task
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Task deleted
