@@ -1,11 +1,19 @@
 components:
   schemas:
+
+    # =========================
+    # User Schemas
+    # =========================
+
     User:
       type: object
       required:
+        - id
         - name
         - email
-        - password
+        - role
+        - status
+        - createdAt
       properties:
         id:
           type: string
@@ -18,11 +26,6 @@ components:
           type: string
           format: email
           example: pranav@example.com
-        password:
-          type: string
-          format: password
-          minLength: 8
-          example: secure123
         role:
           type: string
           enum: [admin, lead, member]
@@ -35,6 +38,30 @@ components:
           type: string
           format: date-time
           description: Timestamp when the user was created
+
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Pranav
+        email:
+          type: string
+          format: email
+          example: pranav@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: secure123
+
+    # =========================
+    # Authentication Schemas
+    # =========================
 
     LoginRequest:
       type: object
@@ -61,13 +88,87 @@ components:
           type: string
           description: JWT refresh token
         user:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Valid refresh token
+
+    RefreshTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: New JWT access token
+
+    # =========================
+    # Task Schemas
+    # =========================
+
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the task
+        title:
+          type: string
+          description: Task title
+        description:
+          type: string
+          description: Task description
+        status:
+          type: string
+          enum: [pending, in-progress, completed]
+          default: pending
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the task was created
+
+    CreateTask:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Task title
+        description:
+          type: string
+          description: Task description
+
+    # =========================
+    # Error Schema
+    # =========================
 
     Error:
       type: object
+      required:
+        - error
       properties:
         error:
           type: string
           description: Error message
           example: Invalid credentials
 
+  # =========================
+  # Security Schemes
+  # =========================
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

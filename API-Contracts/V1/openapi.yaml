@@ -1,189 +1,44 @@
 openapi: 3.0.4
+
 info:
   title: Task Management API
   version: 1.0.0
   description: API for managing tasks and users
+
 servers:
   - url: http://api.example.com/v1
     description: Production server
 
-components:
-  $ref: "./schemas/schema.yaml#/components"
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  # schemas:
-  #   $ref: "./schemas/schema.yaml#/components/schemas"
-  # securitySchemes:
-  #   $ref: "./schemas/schema.yaml#/components/securitySchemes" 
-
-
 tags:
   - name: Authentication
-    description: Endpoints related to auth
   - name: User Management
-    description: Endpoints related to users
   - name: Task Management
-    description: Endpoints related to tasks
 
-# Authentication endpoints
+components:
+  schemas:
+    $ref: "./schemas/schema.yaml#/components/schemas"
+
 paths:
+  # Auth
   /auth/register:
-    post:
-      tags:
-        - Authentication
-      summary: Create a new user account
-      description: Register a new user with name, email, and password
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - name
-                - email
-                - password
-              properties:
-                name:
-                  type: string
-                  example: Pranav
-                email:
-                  type: string
-                  format: email
-                  example: pranav@example.com
-                password:
-                  type: string
-                  format: password
-                  minLength: 8
-                  example: secure123
-      responses:
-        '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        '400':
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        '409':
-          description: User already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+    $ref: "./auth/auth-api.yaml#/paths/~1auth~1register"
 
   /auth/login:
-    post:
-      tags:
-        - Authentication
-      summary: Authenticate user and get JWT tokens
-      description: Authenticate a user with email and password to receive access and refresh tokens
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LoginRequest"
-      responses:
-        '200':
-          description: Authentication successful
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LoginResponse"
-        '401':
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+    $ref: "./auth/auth-api.yaml#/paths/~1auth~1login"
 
   /auth/logout:
-    post:
-      tags:
-        - Authentication
-      summary: Invalidate refresh token
-      description: Log out the current user by invalidating their refresh token
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successfully logged out
-        '401':
-          description: Unauthorized - invalid or missing token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+    $ref: "./auth/auth-api.yaml#/paths/~1auth~1logout"
 
   /auth/refresh:
-    post:
-      tags:
-        - Authentication
-      summary: Refresh access token
-      description: Get a new access token using a valid refresh token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - refreshToken
-              properties:
-                refreshToken:
-                  type: string
-                  description: Valid refresh token
-      responses:
-        '200':
-          description: New access token generated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                    description: New JWT access token
-        '401':
-          description: Invalid or expired refresh token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+    $ref: "./auth/auth-api.yaml#/paths/~1auth~1refresh"
 
-
+  # User
   /user/me:
-    get:
-      tags:
-        - User Management
-      summary: Create a new user account
-      description: Get logged-in user
-      security:
-        - bearerAuth: []  
-      responses:
-        '200':
-          description: User fetched successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        '401':
-          description: Unauthorized - invalid or missing token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        '409':
-          description: User doesn't exist
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+    $ref: "./users/users-api.yaml#/paths/~1user~1me"
+
+  # Tasks
+  /tasks:
+    $ref: "./tasks/tasks-api.yaml#/paths/~1tasks"
+
+  /tasks/{taskId}:
+    $ref: "./tasks/tasks-api.yaml#/paths/~1tasks~1{taskId}"
