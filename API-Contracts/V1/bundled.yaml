@@ -51,6 +51,31 @@ components:
           type: string
           format: date-time
           description: Timestamp when the user was created
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the user was soft deleted
+    UpdateUserRequest:
+      type: object
+      description: Fields allowed to be updated for a user
+      properties:
+        name:
+          type: string
+          example: Pranav Poddar
+        role:
+          type: string
+          enum:
+            - admin
+            - lead
+            - member
+        status:
+          type: string
+          enum:
+            - active
+            - busy
+            - unavailable
+      additionalProperties: false
     RegisterRequest:
       type: object
       required:
@@ -269,6 +294,156 @@ paths:
                 $ref: '#/components/schemas/User'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/user/{id}':
+    get:
+      tags:
+        - User Management
+      summary: Get specific user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: user ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users:
+    get:
+      tags:
+        - User Management
+      summary: Lists Users (filter by role and team)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: role
+          in: query
+          required: false
+          description: filters user by role
+          schema:
+            type: string
+            enum:
+              - admin
+              - lead
+              - member
+        - name: team
+          in: query
+          required: false
+          description: filters user by team
+          schema:
+            type: string
+            example: frontend
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/users/{id}':
+    patch:
+      tags:
+        - User Management
+      summary: Update user details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid Update Payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - User Management
+      summary: Soft delete a user
+      description: 'Marks the user deleted without removing from the database, keep this in mind that you have to respect deletedAt in all the previous routes.'
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User soft deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
           content:
             application/json:
               schema:

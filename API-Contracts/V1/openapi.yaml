@@ -35,6 +35,12 @@ paths:
   # User
   /user/me:
     $ref: "./users/users-api.yaml#/paths/~1user~1me"
+  /user/{id}:
+    $ref: "./users/users-api.yaml#/paths/~1user~1{id}"
+  /users:
+    $ref: "./users/users-api.yaml#/paths/~1users"
+  /users/{id}:
+    $ref: "./users/users-api.yaml#/paths/~1users~1{id}"
 
   # Tasks
   /tasks:
