@@ -38,6 +38,28 @@ components:
           type: string
           format: date-time
           description: Timestamp when the user was created
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the user was soft deleted
+
+    UpdateUserRequest:
+      type: object
+      description: Fields allowed to be updated for a user
+      properties:
+        name:
+          type: string
+          example: Pranav Poddar
+
+        role:
+          type: string
+          enum: [admin, lead, member]
+
+        status:
+          type: string
+          enum: [active, busy, unavailable]
+      additionalProperties: false
 
     RegisterRequest:
       type: object
